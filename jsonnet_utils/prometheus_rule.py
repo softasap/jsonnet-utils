@@ -7,7 +7,7 @@ import _jsonnet
 import logging
 import subprocess
 
-from .utils import parse_yaml
+from utils import parse_yaml
 
 PROMETHEUS_RECORD_RULES = """
 {

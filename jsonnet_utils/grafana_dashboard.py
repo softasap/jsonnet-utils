@@ -5,9 +5,9 @@ import glob
 import _jsonnet
 import logging
 import subprocess
-from .prometheus_rule import search_prometheus_metrics, metrics_rules
+from prometheus_rule import search_prometheus_metrics, metrics_rules
 
-from .utils import parse_yaml
+from utils import parse_yaml
 
 logging.basicConfig(
     format="%(asctime)s [%(levelname)-5.5s]  %(message)s",
@@ -21,7 +21,8 @@ GRAFONNET_INCLUDES = """
     local row = grafana.row;
     local prometheus = grafana.prometheus;
     local template = grafana.template;
-    local graphPanel = grafana.graphPanel;"""
+    local graphPanel = grafana.graphPanel;
+    local singlestat = grafana.singlestat;"""
 
 GRAFONNET_DASHBOARD = """
     dashboard.new(\n{}, tags={})"""
@@ -232,7 +233,7 @@ def convert_dashboard_jsonnet(dashboard, format, source_path, build_path):
             the_file.write(dashboard_str)
         output = (
             subprocess.Popen(
-                "jsonnet fmt -n 2 --max-blank-lines 2 --string-style s --comment-style s -i "
+                "jsonnetfmt -n 2 --max-blank-lines 2 --string-style s --comment-style s -i "
                 + build_file,
                 shell=True,
                 stdout=subprocess.PIPE,
@@ -261,9 +262,22 @@ def parse_dashboard(board_file):
     with open(board_file) as f:
         dashboard = json.load(f)
     panels = []
-    for row in dashboard["rows"]:
-        for panel in row["panels"]:
-            panels.append(panel)
+    if "rows" in dashboard:
+        for row in dashboard["rows"]:
+            for panel in row["panels"]:
+                panels.append(panel)
+    else:
+        for panel in dashboard["panels"]:
+           if not "span" in panel:
+               panel["span"] = 3
+           if not "format" in panel:
+               panel["format"] = "none"
+           panels.append(panel)
+        dashboard["rows"]= [
+            {
+                "panels": dashboard["panels"]
+            }
+        ]
     dashboard["_filename"] = os.path.basename(board_file)
     dashboard["_panels"] = panels
     return dashboard

@@ -7,3 +7,4 @@ build
 data
 view/data*
 scripts/*.py
+.venv

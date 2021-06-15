@@ -5,8 +5,8 @@ import sys
 import os
 import click
 import logging
-from .grafana_dashboard import convert_dashboards, info_dashboards, test_dashboards, metrics_dashboards, metrics_all
-from .prometheus_rule import convert_rules, metrics_rules, info_rules
+from grafana_dashboard import convert_dashboards, info_dashboards, test_dashboards, metrics_dashboards, metrics_all
+from prometheus_rule import convert_rules, metrics_rules, info_rules
 
 logging.basicConfig(
     format="%(asctime)s [%(levelname)-5.5s]  %(message)s",
@@ -98,3 +98,7 @@ def rule_convert(source_path, build_path):
     logging.info(
         'Searching path `{}` for YAML rule definitions to convert ...'.format(source_path))
     convert_rules(source_path, build_path)
+
+
+if __name__ == '__main__':
+    dashboard_convert()
